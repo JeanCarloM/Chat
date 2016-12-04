@@ -7,9 +7,9 @@ public class clienteHilo extends Thread{
 	private Socket cliente;
 	private clienteHilo hilos[];
 	private int totalClientes;
-	private DataInputStream entrada;
+	private DataInputStream entrada, entradamute;
 	private PrintStream salida;
-	private String nickname;
+	private String nickname, nicknamemute;
 
 	public clienteHilo(Socket cliente, clienteHilo t[]){
 		this.cliente = cliente;
@@ -24,10 +24,13 @@ public class clienteHilo extends Thread{
 			for(j = 0 ; j < totalClientes; j++){
 			if(hilos[j] == this) os = j;
 			}
-			for(j = 0; j < totalClientes; j++){
-				
-				hilos[os].salida.close();
-			}
+
+				hilos[os].salida.println("¿A quien quieres silenciar?");	
+				entradamute = new DataInputStream(cliente.getInputStream());
+				nicknamemute = entradamute.readLine();
+				entradamute.close();
+
+			
 		}catch(Exception e){
 			System.out.println("Mute no sirve ");
 		}
@@ -41,10 +44,10 @@ public class clienteHilo extends Thread{
 			if(hilos[i] == this) pos = i;
 			}
 
-			salida.println("Los usuarios conectados son :");
+			salida.println("\t Los usuarios conectados son :");
 			for(i = 0; i< totalClientes; i++){
 				
-				hilos[pos].salida.println("-" + hilos[i].nickname + "\r");
+				hilos[pos].salida.println("\n\t -" + hilos[i].nickname );
 			}
 		}catch(Exception e){
 			System.out.println("Algo salio mal ");
@@ -58,14 +61,14 @@ public class clienteHilo extends Thread{
 			entrada = new DataInputStream(cliente.getInputStream());
 			salida = new PrintStream(cliente.getOutputStream());
 
-			salida.println("... Bienvenido al Chat  !! ... ");
-			salida.println(" *¿Cual sera su nickname? >> ");
+			salida.println("\t ... Bienvenido al Chat  !! ... ");
+			salida.println("\t *¿Cual sera su nickname? >> ");
 			nickname = entrada.readLine();
-			salida.println("Hola " + nickname + " :D !");
+			salida.println("\t Hola " + nickname + " :D ! \n");
 
 			for(i = 0 ; i < totalClientes; i++){
 				if(hilos[i] != null && hilos[i] != this){
-					hilos[i].salida.println("Acaba de conectarse : " + nickname);
+					hilos[i].salida.println("\r\r\t ***---------------- Acaba de conectarse : " + nickname + "------------------");
 
 				}
 			}
@@ -110,9 +113,9 @@ public class clienteHilo extends Thread{
 					mensaje = mensaje.replaceAll("chingada", "c****");
 					System.out.println(mensaje);
 				}
-				if(mensaje.contains("zorra" )){
+				if(mensaje.contains("zorr" )){
 					System.out.println("Cadena grosera");
-					mensaje = mensaje.replaceAll("zorra", "z****");
+					mensaje = mensaje.replaceAll("zorr", "z****");
 					System.out.println(mensaje);
 					
 				}
@@ -122,28 +125,37 @@ public class clienteHilo extends Thread{
 					System.out.println(mensaje);
 					
 				}
-				if(mensaje.startsWith("/lista")){
-					muestraLista();
+				if(mensaje.contains("mierda" )){
+					System.out.println("Cadena grosera");
+					mensaje = mensaje.replaceAll("mierda", "m****");
+					System.out.println(mensaje);
 					
 				}
-				if(mensaje.startsWith("/Mute" )){
+				if(mensaje.startsWith("/lista")){
+					muestraLista();
+					mensaje = mensaje.replaceAll("/lista", "****");
+					
+				}
+				if(mensaje.startsWith("/mute" )){
 					muteUsuario();
+					mensaje = mensaje.replaceAll("/mute", "****");
 				}
 				for(i = 0 ; i < totalClientes; i++){
 					if(hilos[i] != null && hilos[i] != this){
-						hilos[i].salida.println(nickname + " dice>> " + mensaje);
-						hilos[i].salida.print("\r Tu >> ");
+						hilos[i].salida.println("\r\t" + nickname + " dice>> " + mensaje + "\n");
+						hilos[i].salida.print("\r" + " \t Tu >> ");
+						hilos[i].salida.print("  ");
 					}
 				}
 			}
 
 			for(i = 0 ; i < totalClientes; i++){
 				if(hilos[i] != null && hilos[i] != this){
-					hilos[i].salida.println(nickname + " Se fue :c");
+					hilos[i].salida.println("\n ***-------------- Oye! " + nickname + " Se fue :c  -------------");
 				}
 			}
 
-			salida.println("Adios " + nickname);
+			salida.println("\n\t ----------------- Que te vaya bien " + nickname + " Adios ------------------");
 
 			for(i = 0 ; i < totalClientes; i++){
 				if(hilos[i] == this){
